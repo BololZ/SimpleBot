@@ -1,5 +1,6 @@
 import discord
 import datetime
+import asyncio
 
 
 class MyClient(discord.AutoShardedClient):
