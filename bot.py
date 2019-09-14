@@ -1,5 +1,5 @@
 import discord
-from datetime import datetime, time
+import datetime
 
 
 class MyClient(discord.AutoShardedClient):
@@ -18,8 +18,7 @@ class MyClient(discord.AutoShardedClient):
         heure = datetime.time(datetime.now())
         h = str(heure.hour)
         m = str(heure.minute)
-        print(h+':'+m)
         if int(h) == 22 and int(m) == 0:
-            print('chut.......')
-            await channel.send('chut.....')
+            print('Chut.......<3')
+            await channel.send('Chut.....<3')
             await asyncio.sleep(60)
