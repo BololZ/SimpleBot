@@ -22,7 +22,7 @@ class MyClient(discord.AutoShardedClient):
             h = str(heure.hour)
             m = str(heure.minute)
             print(h+':'+m)
-            if int(h) == 22 and int(m) == 0:
+            if (int(h) >= 22 or int(h) <= 6) and (int(m) == 0 or int(m) == 30):
                 print('Chut.......<3')
                 await channel.send('Chut.....:heart:', tts=True)
             await asyncio.sleep(60)
