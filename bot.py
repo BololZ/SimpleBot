@@ -82,5 +82,4 @@ class MyClient(discord.AutoShardedClient):
             print(streamers)
             del streamers, twitch
             # del channel
-
             await asyncio.sleep(120)
