@@ -19,4 +19,4 @@ client = bot.MyClient()
 try:
     client.run(token)
 except:
-    print('Erreur d\'éxécution')
+    print('Erreur de lancement')
