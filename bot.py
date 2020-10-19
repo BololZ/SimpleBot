@@ -50,7 +50,6 @@ class MyClient(discord.AutoShardedClient):
 
     async def background_task_twitch(self):
         await self.wait_until_ready()
-        # twitch_stream = dict()
         while not self.is_closed():
             twitch = Twitch(api_twitch_id, api_twitch_secret)
             try:
@@ -58,28 +57,29 @@ class MyClient(discord.AutoShardedClient):
             except:
                 print('Erreur auth Twitch')
             streamers = twitch.get_streams(user_login=user_logins)
-            # channel = self.get_channel(int(chan_id_stream))
-            # for stream in streamers:
-            # print(stream)
-            # username = stream[0]
-            # print(username)
-            # message = 'Maintenant en stream :heart: !!!!!\n**'
-            # message += username
-            # message += '**\n'
-            # message += 'Titre : ***'
-            # message += stream['title']
-            # message += '***\n'
-            # message += 'sur **'
-            # message += game
-            # message += '** pour **'
-            # message += str(stream['viewer_count'])
-            # message += '** viewers\n'
-            # message += 'https://www.twitch.com/'
-            # message += username.lower()
-            # message += '\n'
-            # message_markdown = markdown.markdown(message)
-            # await channel.send(message)
-            print(streamers)
-            del streamers, twitch
-            # del channel
+            channel = self.get_channel(int(chan_id_stream))
+            twitch_stream = dict()
+            for twitch_stream in streamers['data']:
+                message = string()
+                message = 'Maintenant en stream :heart: !!!!!\n**'
+                message += twitch_stream['user_name']
+                message += '**\n'
+                message += 'Titre : ***'
+                message += twitch_stream['title']
+                message += '***\n'
+                message += 'sur **'
+                list_game = twitch.get_games(game_ids=twitch_stream['game_id'])
+                game_data = list_game['data']
+                message += game_data['name']
+                message += '** pour **'
+                message += str(twitch_stream['viewer_count'])
+                message += '** viewers\n'
+                message += 'https://www.twitch.com/'
+                message += stream['user_name'].lower()
+                message += '\n'
+                print(message)
+                # await channel.send(message)
+                del message
+            del streamers, twitch, twitch_stream
+            del channel
             await asyncio.sleep(120)
