@@ -1,0 +1,3 @@
+twitchAPI
+discord.py
+PyYAML

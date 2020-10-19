@@ -1,3 +1,0 @@
-pip install twitchAPI
-pip install discord.py
-pip install PyYAML
