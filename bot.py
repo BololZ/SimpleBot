@@ -1,5 +1,5 @@
 import asyncio
-import datetime
+from datetime import datetime
 
 import discord
 import yaml
@@ -50,6 +50,9 @@ class MyClient(discord.AutoShardedClient):
 
     async def background_task_twitch(self):
         await self.wait_until_ready()
+        stream_date = dict()
+        for i in user_logins:
+            stream_date[i] = datetime.strptime('2020-01-01T00:00:00Z', '%Y-%m-%dT%H:%M:%SZ')
         while not self.is_closed():
             twitch = Twitch(api_twitch_id, api_twitch_secret)
             try:
@@ -60,26 +63,31 @@ class MyClient(discord.AutoShardedClient):
             channel = self.get_channel(int(chan_id_stream))
             twitch_stream = dict()
             for twitch_stream in streamers['data']:
-                message = str()
-                message = 'Maintenant en stream :heart: !!!!!\n**'
-                message += twitch_stream['user_name']
-                message += '**\n'
-                message += 'Titre : ***'
-                message += twitch_stream['title']
-                message += '***\n'
-                message += 'sur **'
-                list_game = twitch.get_games(game_ids=twitch_stream['game_id'])
-                game_data = list_game['data'][0]
-                message += game_data['name']
-                message += '** pour **'
-                message += str(twitch_stream['viewer_count'])
-                message += '** viewers\n'
-                message += 'https://www.twitch.com/'
-                message += twitch_stream['user_name'].lower()
-                message += '\n'
-                print(message)
-                # await channel.send(message)
-                del message
+                if (twitch_stream['type'] == 'live') and (stream_date[twitch_stream['user_name'].lower()]
+                                                          < datetime.strptime(twitch_stream['started_at'],
+                                                                              '%Y-%m-%dT%H:%M:%SZ')):
+                    message = str()
+                    message = 'Maintenant en stream :heart: !!!!!\n**'
+                    message += twitch_stream['user_name']
+                    message += '**\n'
+                    message += 'Titre : ***'
+                    message += twitch_stream['title']
+                    message += '***\n'
+                    message += 'sur **'
+                    list_game = twitch.get_games(game_ids=twitch_stream['game_id'])
+                    game_data = list_game['data'][0]
+                    message += game_data['name']
+                    message += '** pour **'
+                    message += str(twitch_stream['viewer_count'])
+                    message += '** viewers\n'
+                    message += 'https://www.twitch.com/'
+                    message += twitch_stream['user_name'].lower()
+                    message += '\n'
+                    print(message)
+                    await channel.send(message)
+                    stream_date[twitch_stream['user_name'].lower()] \
+                        = datetime.strptime(twitch_stream['started_at'], '%Y-%m-%dT%H:%M:%SZ')
+                    del message
             del streamers, twitch, twitch_stream
             del channel
             await asyncio.sleep(120)
