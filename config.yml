@@ -1,0 +1,8 @@
+client:
+        token:
+        chan_id:
+twitch:
+        client_id:
+        secret:
+        twitch_logins:
+        chan_id:
