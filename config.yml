@@ -1,0 +1,8 @@
+client:
+        token: 'NjIwNDc0OTkyNjA5NzIyMzg3.XeqnHQ.VEVIet_AWLFWlqnW6D3yUgHhZj4'
+        chan_id: 338723133462806528
+twitch:
+        client_id: '5mh255cedulq2be7xrm3147msuv5k8'
+        secret: '17sjgm3xw8nki20uoysrhdl79s2xbu'
+        twitch_logins: ['lesgueteuses', 'bololtv', 'siraza', 'papydje']
+        chan_id: 341546425051643907
