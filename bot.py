@@ -4,6 +4,8 @@ from datetime import datetime
 import discord
 import yaml
 from twitchAPI.twitch import Twitch
+from twitchAPI.types import TwitchAPIException
+
 
 with open("config.yml", 'r') as stream:
     try:
@@ -57,8 +59,8 @@ class MyClient(discord.AutoShardedClient):
             twitch = Twitch(api_twitch_id, api_twitch_secret)
             try:
                 twitch.authenticate_app([])
-            except:
-                print('Erreur auth Twitch')
+            except TwitchAPIException:
+                print('Erreur auth Twitch', TwitchAPIException)
             streamers = twitch.get_streams(user_login=user_logins)
             channel = self.get_channel(int(chan_id_stream))
             twitch_stream = dict()
