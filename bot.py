@@ -59,37 +59,38 @@ class MyClient(discord.AutoShardedClient):
             twitch = Twitch(api_twitch_id, api_twitch_secret)
             try:
                 twitch.authenticate_app([])
-            except TwitchAPIException:
-                print('Erreur auth Twitch', TwitchAPIException)
-            streamers = twitch.get_streams(user_login=user_logins)
-            channel = self.get_channel(int(chan_id_stream))
-            twitch_stream = dict()
-            for twitch_stream in streamers['data']:
-                if (twitch_stream['type'] == 'live') and (stream_date[twitch_stream['user_name'].lower()]
-                                                          < datetime.strptime(twitch_stream['started_at'],
-                                                                              '%Y-%m-%dT%H:%M:%SZ')):
-                    message = str()
-                    message = 'Maintenant en stream :heart: !!!!!\n**'
-                    message += twitch_stream['user_name']
-                    message += '**\n'
-                    message += 'Titre : ***'
-                    message += twitch_stream['title']
-                    message += '***\n'
-                    message += 'sur **'
-                    list_game = twitch.get_games(game_ids=twitch_stream['game_id'])
-                    game_data = list_game['data'][0]
-                    message += game_data['name']
-                    message += '** pour **'
-                    message += str(twitch_stream['viewer_count'])
-                    message += '** viewers\n'
-                    message += 'https://www.twitch.com/'
-                    message += twitch_stream['user_name'].lower()
-                    message += '\n'
-                    print(message)
-                    await channel.send(message)
-                    stream_date[twitch_stream['user_name'].lower()] \
-                        = datetime.strptime(twitch_stream['started_at'], '%Y-%m-%dT%H:%M:%SZ')
-                    del message
-            del streamers, twitch, twitch_stream
-            del channel
+                streamers = twitch.get_streams(user_login=user_logins)
+                channel = self.get_channel(int(chan_id_stream))
+                twitch_stream = dict()
+                for twitch_stream in streamers['data']:
+                    if (twitch_stream['type'] == 'live') and (stream_date[twitch_stream['user_name'].lower()]
+                                                              < datetime.strptime(twitch_stream['started_at'],
+                                                                                  '%Y-%m-%dT%H:%M:%SZ')):
+                        message = str()
+                        message = 'Maintenant en stream :heart: !!!!!\n**'
+                        message += twitch_stream['user_name']
+                        message += '**\n'
+                        message += 'Titre : ***'
+                        message += twitch_stream['title']
+                        message += '***\n'
+                        message += 'sur **'
+                        list_game = twitch.get_games(game_ids=twitch_stream['game_id'])
+                        game_data = list_game['data'][0]
+                        message += game_data['name']
+                        message += '** pour **'
+                        message += str(twitch_stream['viewer_count'])
+                        message += '** viewers\n'
+                        message += 'https://www.twitch.com/'
+                        message += twitch_stream['user_name'].lower()
+                        message += '\n'
+                        print(message)
+                        await channel.send(message)
+                        stream_date[twitch_stream['user_name'].lower()] \
+                            = datetime.strptime(twitch_stream['started_at'], '%Y-%m-%dT%H:%M:%SZ')
+                        del message
+                del streamers, twitch_stream
+                del channel
+            except TwitchAPIException as exc:
+                print('Erreur Twitch', exc)
+            del twitch
             await asyncio.sleep(120)
