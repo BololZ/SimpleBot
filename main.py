@@ -2,11 +2,17 @@ import logging
 import bot
 import yaml
 
-logger = logging.getLogger('discord')
-logger.setLevel(logging.INFO)
-handler = logging.FileHandler(filename='log/discord.log', encoding='utf-8', mode='w')
-handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-logger.addHandler(handler)
+logger0 = logging.getLogger('discord')
+logger0.setLevel(logging.INFO)
+handler0 = logging.FileHandler(filename='log/discord.log', encoding='utf-8', mode='w')
+handler0.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+logger0.addHandler(handler0)
+
+logger1 = logging.getLogger('TwitchAPI')
+logger1.setLevel(logging.INFO)
+handler1 = logging.FileHandler(filename='log/twitch.log', encoding='utf-8', mode='w')
+handler1.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+logger1.addHandler(handler1)
 
 with open("config.yml", 'r') as stream:
     try:
@@ -15,8 +21,8 @@ with open("config.yml", 'r') as stream:
         print(exc)
 token = cfg['client']['token']
 
-client = bot.MyClient()
+bot_discord = bot.MonBot()
 try:
-    client.run(token)
+    bot_discord.run(token)
 except:
     print('Erreur de lancement')

@@ -1,3 +1,4 @@
 twitchAPI
 discord.py
 PyYAML
+psycopg2
