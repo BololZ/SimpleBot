@@ -42,18 +42,22 @@ class MonBot(discord.AutoShardedClient):
         await self.wait_until_ready()
         # we do not want the bot to reply to itself
         if self.user.id == message.author.id or str(message.channel.type) != 'private':
-            return
+            return None
         try:
             date_message = datetime.strptime(message.content, '%d/%m/%Y')
         except ValueError:
             await message.channel.send('Mauvais format de date ou aucune date')
-            return
+            return 'Bad format'
+        except date_message < datetime.date(datetime.today()):
+            await message.channel.send('Mauvais date dans le passé')
+            return 'Bad date in the past'
+
         try:
             conn = psycopg2.connect(DSN)
             conn.set_client_encoding('UTF8')
         except psycopg2.Error as err:
             print('Erreur de connexion à la BDD: ', err)
-            return
+            return err
         try:
             where = message.author.id
             curs = conn.cursor()
@@ -88,7 +92,7 @@ class MonBot(discord.AutoShardedClient):
             print('Erreur de requête :', err)
             conn.rollback()
             conn.close()
-            return
+            return err
         finally:
             conn.commit()
             conn.close()
@@ -104,12 +108,10 @@ class MonBot(discord.AutoShardedClient):
                 twitch.authenticate_app([])
                 streamers = twitch.get_streams(user_login=user_logins)
                 channel = self.get_channel(int(chan_id_stream))
-                twitch_stream = dict()
                 for twitch_stream in streamers['data']:
                     if (twitch_stream['type'] == 'live') and (stream_date[twitch_stream['user_name'].lower()]
                                                               < datetime.strptime(twitch_stream['started_at'],
                                                                                   '%Y-%m-%dT%H:%M:%SZ')):
-                        message = str()
                         message = 'Maintenant en stream :heart: !!!!!\n**'
                         message += twitch_stream['user_name']
                         message += '**\n'
@@ -163,7 +165,7 @@ class MonBot(discord.AutoShardedClient):
                                 'Aujourd\'hui, '+user.mention+' est arrivé(e) dans ce monde !'
                                                               'Venez tous lui souhaiter un joyeux anniversaire ! '
                             )
-                        date_prochaine = date_du_jour.replace(year = date_du_jour.year + 1)
+                        date_prochaine = date_du_jour.replace(year=date_du_jour.year + 1)
                         curs.execute(
                             'UPDATE anniversaire SET jour = %(date)s FROM identity WHERE '
                             'identity.id_simplebot = anniversaire.id_simplebot AND '
@@ -173,7 +175,7 @@ class MonBot(discord.AutoShardedClient):
                 print('Erreur de requête :', err)
                 conn.rollback()
                 conn.close()
-                return
+                return err
             finally:
                 conn.commit()
                 conn.close()
