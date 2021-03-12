@@ -49,7 +49,7 @@ class MonBot(discord.AutoShardedClient):
             await message.channel.send('Mauvais format de date ou aucune date')
             return 'Bad format'
         except date_message < datetime.date(datetime.today()):
-            await message.channel.send('Mauvais date dans le passé')
+            await message.channel.send('Mauvaise date dans le passé')
             return 'Bad date in the past'
 
         try:
@@ -162,8 +162,8 @@ class MonBot(discord.AutoShardedClient):
                         user = await self.fetch_user(user_id=anniv[0])
                         channel = self.get_channel(chan_id_birthday)
                         await channel.send(
-                                'Aujourd\'hui, '+user.mention+' est arrivé(e) dans ce monde !'
-                                                              'Venez tous lui souhaiter un joyeux anniversaire ! '
+                                'Aujourd\'hui, '+user.mention+' est arrivé(e) dans ce monde ! '
+                                                              ' Venez tous lui souhaiter un joyeux anniversaire ! '
                             )
                         date_prochaine = date_du_jour.replace(year=date_du_jour.year + 1)
                         curs.execute(
