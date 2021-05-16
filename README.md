@@ -1,5 +1,7 @@
 # SimpleBot
-##config.yml
+
+config.yml
+
     client:
         token: 
         chan_id: 
@@ -15,7 +17,7 @@
     birthday:
         chan_id: 
 
-##PostgreSQL Schema
+PostgreSQL Schema
 
     CREATE DATABASE simplebot
         WITH 
