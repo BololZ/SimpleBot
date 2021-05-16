@@ -106,12 +106,14 @@ class MonBot(discord.AutoShardedClient):
             twitch = Twitch(api_twitch_id, api_twitch_secret)
             try:
                 twitch.authenticate_app([])
+                print("Authentification Twitch")
                 streamers = twitch.get_streams(user_login=user_logins)
                 channel = self.get_channel(int(chan_id_stream))
                 for twitch_stream in streamers['data']:
                     if (twitch_stream['type'] == 'live') and (stream_date[twitch_stream['user_name'].lower()]
                                                               < datetime.strptime(twitch_stream['started_at'],
                                                                                   '%Y-%m-%dT%H:%M:%SZ')):
+                        print(twitch_stream['user_name'], " est en stream !")
                         message = 'Maintenant en stream :heart: !!!!!\n**'
                         message += twitch_stream['user_name']
                         message += '**\n'
