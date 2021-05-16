@@ -104,10 +104,19 @@ class MonBot(discord.AutoShardedClient):
             stream_date[i] = datetime.strptime('2020-01-01T00:00:00Z', '%Y-%m-%dT%H:%M:%SZ')
         while not self.is_closed():
             twitch = Twitch(api_twitch_id, api_twitch_secret)
+            print("Authentification Twitch...")
             try:
                 twitch.authenticate_app([])
-                print("Authentification Twitch")
+                print("Authentification Twitch réussie")
+            except TwitchAPIException as exc:
+                print('Erreur Authentification Twitch :', exc)
+                del twitchch
+            try:
                 streamers = twitch.get_streams(user_login=user_logins)
+                del streamers
+            except TwitchAPIException as exc:
+                print('Erreur get_streams Twitch :', exc)
+            else:
                 channel = self.get_channel(int(chan_id_stream))
                 for twitch_stream in streamers['data']:
                     if (twitch_stream['type'] == 'live') and (stream_date[twitch_stream['user_name'].lower()]
@@ -136,10 +145,8 @@ class MonBot(discord.AutoShardedClient):
                         del message
                 del streamers, twitch_stream
                 del channel
-            except TwitchAPIException as exc:
-                print('Erreur Twitch :', exc)
             del twitch
-            await asyncio.sleep(120)
+            await asyncio.sleep(300)
 
     async def background_task_birthday(self):
         await self.wait_until_ready()
