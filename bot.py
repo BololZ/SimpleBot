@@ -110,12 +110,12 @@ class MonBot(discord.AutoShardedClient):
                 print("Authentification Twitch réussie")
             except TwitchAPIException as exc:
                 print('Erreur Authentification Twitch :', exc)
-                del twitchch
+                del twitch
             try:
                 streamers = twitch.get_streams(user_login=user_logins)
-                del streamers
             except TwitchAPIException as exc:
                 print('Erreur get_streams Twitch :', exc)
+                del streamers
             else:
                 channel = self.get_channel(int(chan_id_stream))
                 for twitch_stream in streamers['data']:
