@@ -1,6 +1,7 @@
 import logging
 import bot
 import yaml
+import discord
 
 logger0 = logging.getLogger('discord')
 logger0.setLevel(logging.INFO)
@@ -21,8 +22,12 @@ with open("config.yml", 'r') as stream:
         print(exc)
 token = cfg['client']['token']
 
-bot_discord = bot.MonBot()
+intents = discord.Intents.default()
+intents.members = True
+MemberCacheFlags = discord.MemberCacheFlags.all()
+
+bot_discord = bot.MonBot(intents=intents, MemberCacheFlags=MemberCacheFlags)
 try:
     bot_discord.run(token)
-except:
-    print('Erreur de lancement')
+except bot_discord.ClientException as Err:
+    print('Erreur de lancement : ', Err)

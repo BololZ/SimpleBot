@@ -26,7 +26,7 @@ chan_id_birthday = cfg['birthday']['chan_id']
 DSN = "dbname=" + dsn_name + " user=" + dsn_user + " password= " + dsn_pwd
 
 
-class MonBot(discord.AutoShardedClient):
+class MonBot(discord.Client):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # create the background task and run it in the background
@@ -168,12 +168,14 @@ class MonBot(discord.AutoShardedClient):
                 x = curs.fetchall()
                 for anniv in x:
                     if anniv is not None:
-                        user = await self.fetch_user(user_id=anniv[0])
+                        print("Anniv de ID : ", anniv[0])
+                        user = await self.get_user(user_id=anniv[0])
+                        print("et pseudo : ", user)
                         channel = self.get_channel(chan_id_birthday)
                         await channel.send(
-                                'Aujourd\'hui, '+user.mention+' est arrivé(e) dans ce monde ! '
+                            'Aujourd\'hui, ' + user.mention + ' est arrivé(e) dans ce monde ! '
                                                               ' Venez tous lui souhaiter un joyeux anniversaire ! '
-                            )
+                        )
                         date_prochaine = date_du_jour.replace(year=date_du_jour.year + 1)
                         curs.execute(
                             'UPDATE anniversaire SET jour = %(date)s FROM identity WHERE '
