@@ -169,7 +169,7 @@ class MonBot(discord.Client):
                 for anniv in x:
                     if anniv is not None:
                         print("Anniv de ID : ", anniv[0])
-                        user = await self.get_user(user_id=anniv[0])
+                        user = await self.get_user(anniv[0])
                         print("et pseudo : ", user)
                         channel = self.get_channel(chan_id_birthday)
                         await channel.send(
