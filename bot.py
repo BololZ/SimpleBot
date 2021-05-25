@@ -118,6 +118,7 @@ class MonBot(discord.Client):
                 del streamers
             else:
                 channel = self.get_channel(int(chan_id_stream))
+                twitch_stream = dict()
                 for twitch_stream in streamers['data']:
                     if (twitch_stream['type'] == 'live') and (stream_date[twitch_stream['user_name'].lower()]
                                                               < datetime.strptime(twitch_stream['started_at'],
