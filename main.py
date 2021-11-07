@@ -20,7 +20,8 @@ with open("config.yml", 'r') as stream:
         cfg = yaml.safe_load(stream)
     except yaml.YAMLError as exc:
         print(exc)
-token = cfg['client']['token']
+    finally:
+        token = cfg['client']['token']
 
 intents = discord.Intents.default()
 intents.members = True

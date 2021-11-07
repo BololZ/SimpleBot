@@ -14,16 +14,16 @@ with open("config.yml", 'r') as stream:
         cfg = yaml.safe_load(stream)
     except yaml.YAMLError as error:
         print(error)
-
-chan_id_stream = cfg['twitch']['chan_id']
-api_twitch_id = cfg['twitch']['client_id']
-api_twitch_secret = cfg['twitch']['secret']
-user_logins = cfg['twitch']['twitch_logins']
-dsn_name = cfg['bdd']['name']
-dsn_user = cfg['bdd']['user']
-dsn_pwd = cfg['bdd']['pwd']
-chan_id_birthday = cfg['birthday']['chan_id']
-DSN = "dbname=" + dsn_name + " user=" + dsn_user + " password= " + dsn_pwd
+    finally:
+        chan_id_stream = cfg['twitch']['chan_id']
+        api_twitch_id = cfg['twitch']['client_id']
+        api_twitch_secret = cfg['twitch']['secret']
+        user_logins = cfg['twitch']['twitch_logins']
+        dsn_name = cfg['bdd']['name']
+        dsn_user = cfg['bdd']['user']
+        dsn_pwd = cfg['bdd']['pwd']
+        chan_id_birthday = cfg['birthday']['chan_id']
+        DSN = "dbname=" + dsn_name + " user=" + dsn_user + " password= " + dsn_pwd
 
 
 class MonBot(discord.Client):
