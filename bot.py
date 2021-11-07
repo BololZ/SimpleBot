@@ -105,10 +105,10 @@ class MonBot(discord.Client):
             stream_date[i] = datetime.strptime('2020-01-01T00:00:00Z', '%Y-%m-%dT%H:%M:%SZ')
         while not self.is_closed():
             twitch = Twitch(api_twitch_id, api_twitch_secret)
-            print("Authentification Twitch...")
+            # print("Authentification Twitch...")
             try:
                 twitch.authenticate_app([])
-                print("Authentification Twitch réussie")
+                # print("Authentification Twitch réussie")
             except TwitchAPIException as exc:
                 print('Erreur Authentification Twitch :', exc)
                 del twitch
