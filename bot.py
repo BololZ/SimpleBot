@@ -48,7 +48,8 @@ class MonBot(discord.Client):
         except ValueError:
             await message.channel.send('Mauvais format de date ou aucune date')
             return 'Bad format'
-        except date_message < datetime.date(datetime.today()):
+
+        if date_message < datetime.date(datetime.today()):
             await message.channel.send('Mauvaise date dans le passé')
             return 'Bad date in the past'
 
@@ -89,7 +90,7 @@ class MonBot(discord.Client):
                     'Ta date d\'anniversaire a été mise à jour et sauvegardée. Merci {0.author.name}.'.format(message)
                 )
         except psycopg2.Error as err:
-            print('Erreur de requête :', err)
+            print('Erreur de requête : ', err)
             conn.rollback()
             conn.close()
             return err
@@ -111,42 +112,43 @@ class MonBot(discord.Client):
             except TwitchAPIException as exc:
                 print('Erreur Authentification Twitch :', exc)
                 del twitch
-            try:
-                streamers = twitch.get_streams(user_login=user_logins)
-            except TwitchAPIException as exc:
-                print('Erreur get_streams Twitch :', exc)
-                del streamers
-            else:
-                channel = self.get_channel(int(chan_id_stream))
-                twitch_stream = dict()
-                for twitch_stream in streamers['data']:
-                    if (twitch_stream['type'] == 'live') and (stream_date[twitch_stream['user_name'].lower()]
-                                                              < datetime.strptime(twitch_stream['started_at'],
-                                                                                  '%Y-%m-%dT%H:%M:%SZ')):
-                        print(twitch_stream['user_name'], " est en stream !")
-                        message = 'Maintenant en stream :heart: !!!!!\n**'
-                        message += twitch_stream['user_name']
-                        message += '**\n'
-                        message += 'Titre : ***'
-                        message += twitch_stream['title']
-                        message += '***\n'
-                        message += 'sur **'
-                        list_game = twitch.get_games(game_ids=twitch_stream['game_id'])
-                        game_data = list_game['data'][0]
-                        message += game_data['name']
-                        message += '** pour **'
-                        message += str(twitch_stream['viewer_count'])
-                        message += '** viewers\n'
-                        message += 'https://www.twitch.com/'
-                        message += twitch_stream['user_name'].lower()
-                        message += '\n'
-                        await channel.send(message)
-                        stream_date[twitch_stream['user_name'].lower()] \
-                            = datetime.strptime(twitch_stream['started_at'], '%Y-%m-%dT%H:%M:%SZ')
-                        del message
-                del streamers, twitch_stream
-                del channel
-            del twitch
+            finally:
+                try:
+                    streamers = twitch.get_streams(user_login=user_logins)
+                except TwitchAPIException as exc:
+                    print('Erreur get_streams Twitch :', exc)
+                    del streamers
+                finally:
+                    channel = self.get_channel(int(chan_id_stream))
+                    twitch_stream = dict()
+                    for twitch_stream in streamers['data']:
+                        if (twitch_stream['type'] == 'live') and (stream_date[twitch_stream['user_name'].lower()]
+                                                                  < datetime.strptime(twitch_stream['started_at'],
+                                                                                      '%Y-%m-%dT%H:%M:%SZ')):
+                            print(twitch_stream['user_name'], " est en stream !")
+                            message = 'Maintenant en stream :heart: !!!!!\n**'
+                            message += twitch_stream['user_name']
+                            message += '**\n'
+                            message += 'Titre : ***'
+                            message += twitch_stream['title']
+                            message += '***\n'
+                            message += 'sur **'
+                            list_game = twitch.get_games(game_ids=twitch_stream['game_id'])
+                            game_data = list_game['data'][0]
+                            message += game_data['name']
+                            message += '** pour **'
+                            message += str(twitch_stream['viewer_count'])
+                            message += '** viewers\n'
+                            message += 'https://www.twitch.com/'
+                            message += twitch_stream['user_name'].lower()
+                            message += '\n'
+                            await channel.send(message)
+                            stream_date[twitch_stream['user_name'].lower()] \
+                                = datetime.strptime(twitch_stream['started_at'], '%Y-%m-%dT%H:%M:%SZ')
+                            del message
+                    del streamers, twitch_stream
+                    del channel
+                    del twitch
             await asyncio.sleep(300)
 
     async def background_task_birthday(self):
@@ -184,7 +186,7 @@ class MonBot(discord.Client):
                             'identity.id_discord = %(int)s;', {'date': date_prochaine, 'int': anniv[0]}
                         )
             except psycopg2.Error as err:
-                print('Erreur de requête :', err)
+                print('Erreur de requête : ', err)
                 conn.rollback()
                 conn.close()
                 return err
