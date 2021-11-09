@@ -1,5 +1,5 @@
 import asyncio
-from datetime import datetime
+from datetime import datetime, date
 import uuid
 import psycopg2
 import psycopg2.extras
@@ -44,7 +44,7 @@ class MonBot(discord.Client):
         if self.user.id == message.author.id or str(message.channel.type) != 'private':
             return None
         try:
-            date_message = datetime.strptime(message.content, '%d/%m/%Y')
+            date_message = date.strptime(message.content, '%d/%m/%Y')
         except ValueError:
             await message.channel.send('Mauvais format de date ou aucune date')
             return 'Bad format'
