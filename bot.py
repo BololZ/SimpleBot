@@ -44,12 +44,12 @@ class MonBot(discord.Client):
         if self.user.id == message.author.id or str(message.channel.type) != 'private':
             return None
         try:
-            date_message = date.strptime(message.content, '%d/%m/%Y')
+            date_message = datetime.strptime(message.content, '%d/%m/%Y')
         except ValueError:
             await message.channel.send('Mauvais format de date ou aucune date')
             return 'Bad format'
 
-        if date_message < date.today():
+        if date_message < datetime.today():
             await message.channel.send('Mauvaise date dans le passé')
             return 'Bad date in the past'
 
@@ -109,16 +109,8 @@ class MonBot(discord.Client):
             try:
                 twitch.authenticate_app([])
                 # print("Authentification Twitch réussie")
-            except TwitchAPIException as exc:
-                print('Erreur Authentification Twitch :', exc)
-                del twitch
-            finally:
                 try:
                     streamers = twitch.get_streams(user_login=user_logins)
-                except TwitchAPIException as exc:
-                    print('Erreur get_streams Twitch :', exc)
-                    del streamers
-                finally:
                     channel = self.get_channel(int(chan_id_stream))
                     twitch_stream = dict()
                     for twitch_stream in streamers['data']:
@@ -146,9 +138,15 @@ class MonBot(discord.Client):
                             stream_date[twitch_stream['user_name'].lower()] \
                                 = datetime.strptime(twitch_stream['started_at'], '%Y-%m-%dT%H:%M:%SZ')
                             del message
-                    del streamers, twitch_stream
-                    del channel
-                    del twitch
+                    del channel, twitch_stream
+                except TwitchAPIException as exc:
+                    print('Erreur Twitch API get_streams : ', exc)
+                finally:
+                    del streamers
+            except TwitchAPIException as exc:
+                print('Erreur API Auth Twitch : ', exc)
+            finally:
+                del twitch
             await asyncio.sleep(300)
 
     async def background_task_birthday(self):
@@ -159,7 +157,7 @@ class MonBot(discord.Client):
                 conn = psycopg2.connect(DSN)
                 conn.set_client_encoding("UTF8")
             except psycopg2.Error as err:
-                print('Erreur de connexion :', err)
+                print('Erreur de connexion : ', err)
                 return
 
             try:
