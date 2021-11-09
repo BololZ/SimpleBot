@@ -49,7 +49,7 @@ class MonBot(discord.Client):
             await message.channel.send('Mauvais format de date ou aucune date')
             return 'Bad format'
 
-        if date_message < datetime.date(datetime.today()):
+        if date_message < date.today():
             await message.channel.send('Mauvaise date dans le passé')
             return 'Bad date in the past'
 
