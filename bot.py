@@ -44,12 +44,12 @@ class MonBot(discord.Client):
         if self.user.id == message.author.id or str(message.channel.type) != 'private':
             return None
         try:
-            date_message = date.strptime(message.content, '%d/%m/%Y')
+            date_message = datetime.strptime(message.content, '%d/%m/%Y')
         except ValueError:
             await message.channel.send('Mauvais format de date ou aucune date')
             return 'Bad format'
 
-        if date_message < date.today():
+        if date_message < datetime.today():
             await message.channel.send('Mauvaise date dans le passé')
             return 'Bad date in the past'
 
