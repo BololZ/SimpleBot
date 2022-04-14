@@ -1,6 +1,6 @@
 # SimpleBot
 
-   config.yml
+   config.yaml
     
         client:
             token: 
