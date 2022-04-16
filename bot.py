@@ -9,7 +9,7 @@ import yaml
 from twitchAPI.twitch import Twitch
 from twitchAPI.types import TwitchAPIException
 
-with open("config.yml", 'r') as stream:
+with open("config.yaml", 'r') as stream:
     try:
         cfg = yaml.safe_load(stream)
     except yaml.YAMLError as error:

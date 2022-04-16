@@ -15,7 +15,7 @@ handler1 = logging.FileHandler(filename='log/twitch.log', encoding='utf-8', mode
 handler1.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger1.addHandler(handler1)
 
-with open("config.yml", 'r') as stream:
+with open("config.yaml", 'r') as stream:
     try:
         cfg = yaml.safe_load(stream)
     except yaml.YAMLError as exc:
