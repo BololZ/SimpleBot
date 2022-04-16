@@ -2,14 +2,14 @@
 
 FROM python:latest
 
-RUN groupadd simple && useradd --no-log-init -g simple simple
+RUN groupadd simple && useradd -m --no-log-init -g simple simple
 
 USER simple:simple
 
 WORKDIR /app
 
 COPY requirements.txt requirements.txt
-RUN pip3 install -r requirements.txt
+RUN pip3 --no-cache-dir install -r requirements.txt
 
 COPY . .
 
