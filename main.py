@@ -1,19 +1,13 @@
-import logging
+# import logging
 import bot
 import yaml
 import discord
 
-logger0 = logging.getLogger('discord')
-logger0.setLevel(logging.INFO)
-handler0 = logging.FileHandler(filename='log/discord.log', encoding='utf-8', mode='w')
-handler0.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-logger0.addHandler(handler0)
-
-logger1 = logging.getLogger('twitchAPI')
-logger1.setLevel(logging.INFO)
-handler1 = logging.FileHandler(filename='log/twitch.log', encoding='utf-8', mode='w')
-handler1.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-logger1.addHandler(handler1)
+# logger0 = logging.getLogger('discord')
+# logger0.setLevel(logging.INFO)
+# handler0 = logging.FileHandler(filename='log/discord.log', encoding='utf-8', mode='w')
+# handler0.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+# logger0.addHandler(handler0)
 
 with open("config.yaml", 'r') as stream:
     try:
