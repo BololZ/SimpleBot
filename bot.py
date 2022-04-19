@@ -156,39 +156,35 @@ class MonBot(discord.Client):
             try:
                 conn = psycopg2.connect(DSN)
                 conn.set_client_encoding("UTF8")
+                try:
+                    curs = conn.cursor()
+                    curs.execute(
+                        'SELECT i.id_discord FROM identity as i, anniversaire as a WHERE i.id_simplebot = a.id_simplebot '
+                        'AND a.jour = %s;', [date_du_jour]
+                    )
+                    x = curs.fetchall()
+                    for anniv in x:
+                        if anniv is not None:
+                            print("Anniv de ID : ", anniv[0])
+                            user = self.get_user(anniv[0])
+                            print("et pseudo : ", user)
+                            channel = self.get_channel(chan_id_birthday)
+                            await channel.send(
+                                'Aujourd\'hui, ' + user.mention + ' est arrivé(e) dans ce monde ! '
+                                                                ' Venez tous lui souhaiter un joyeux anniversaire ! '
+                            )
+                            date_prochaine = date_du_jour.replace(year=date_du_jour.year + 1)
+                            curs.execute(
+                                'UPDATE anniversaire SET jour = %(date)s FROM identity WHERE '
+                                'identity.id_simplebot = anniversaire.id_simplebot AND '
+                                'identity.id_discord = %(int)s;', {'date': date_prochaine, 'int': anniv[0]}
+                            )
+                    conn.commit()
+                    conn.close()
+                except psycopg2.Error as err:
+                    print('Erreur de requête : ', err)
+                    conn.rollback()
+                    conn.close()
             except psycopg2.Error as err:
                 print('Erreur de connexion : ', err)
-                return
-
-            try:
-                curs = conn.cursor()
-                curs.execute(
-                    'SELECT i.id_discord FROM identity as i, anniversaire as a WHERE i.id_simplebot = a.id_simplebot '
-                    'AND a.jour = %s;', [date_du_jour]
-                )
-                x = curs.fetchall()
-                for anniv in x:
-                    if anniv is not None:
-                        print("Anniv de ID : ", anniv[0])
-                        user = self.get_user(anniv[0])
-                        print("et pseudo : ", user)
-                        channel = self.get_channel(chan_id_birthday)
-                        await channel.send(
-                            'Aujourd\'hui, ' + user.mention + ' est arrivé(e) dans ce monde ! '
-                                                              ' Venez tous lui souhaiter un joyeux anniversaire ! '
-                        )
-                        date_prochaine = date_du_jour.replace(year=date_du_jour.year + 1)
-                        curs.execute(
-                            'UPDATE anniversaire SET jour = %(date)s FROM identity WHERE '
-                            'identity.id_simplebot = anniversaire.id_simplebot AND '
-                            'identity.id_discord = %(int)s;', {'date': date_prochaine, 'int': anniv[0]}
-                        )
-            except psycopg2.Error as err:
-                print('Erreur de requête : ', err)
-                conn.rollback()
-                conn.close()
-                return err
-            finally:
-                conn.commit()
-                conn.close()
             await asyncio.sleep(900)
