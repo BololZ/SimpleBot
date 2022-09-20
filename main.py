@@ -24,5 +24,5 @@ MemberCacheFlags = discord.MemberCacheFlags.all()
 bot_discord = bot.MonBot(intents=intents, MemberCacheFlags=MemberCacheFlags)
 try:
     bot_discord.run(token)
-except bot_discord.ClientException as Err:
+except discord.ClientException as Err:
     print('Erreur de lancement : ', Err)

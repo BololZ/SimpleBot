@@ -27,11 +27,9 @@ with open("config.yaml", 'r') as stream:
 
 
 class MonBot(discord.Client):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # create the background task and run it in the background
-        self.bg_task_0 = self.loop.create_task(self.background_task_twitch())
-        self.bg_task_1 = self.loop.create_task(self.background_task_birthday())
+    async def setup_hook(self):
+        self.loop.create_task(self.background_task_twitch())
+        self.loop.create_task(self.background_task_birthday())
 
     async def on_ready(self):
         print('Logged on as', self.user)
