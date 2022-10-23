@@ -136,11 +136,9 @@ class MonBot(discord.Client):
                             stream_date[twitch_stream['user_name'].lower()] \
                                 = datetime.strptime(twitch_stream['started_at'], '%Y-%m-%dT%H:%M:%SZ')
                             del message
-                    del channel, twitch_stream
+                    del channel, twitch_stream, streamers
                 except TwitchAPIException as exc:
                     print('Erreur Twitch API get_streams : ', exc)
-                finally:
-                    del streamers
             except TwitchAPIException as exc:
                 print('Erreur API Auth Twitch : ', exc)
             finally:
