@@ -165,10 +165,11 @@ class MonBot(discord.Client):
                             user = self.get_user(anniv[0])
                             print("et pseudo : ", user)
                             channel = self.get_channel(chan_id_birthday)
-                            await channel.send(
-                                'Aujourd\'hui, ' + user.mention + ' est arrivé(e) dans ce monde ! '
-                                                                ' Venez tous lui souhaiter un joyeux anniversaire ! '
-                            )
+                            if user != None:
+                                await channel.send(
+                                    'Aujourd\'hui, ' + user.mention + ' est arrivé(e) dans ce monde ! '
+                                                            ' Venez tous lui souhaiter un joyeux anniversaire ! '
+                                )
                             date_prochaine = date_du_jour.replace(year=date_du_jour.year + 1)
                             curs.execute(
                                 'UPDATE anniversaire SET jour = %(date)s FROM identity WHERE '
