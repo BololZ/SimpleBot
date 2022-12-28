@@ -123,9 +123,12 @@ class MonBot(discord.Client):
                             message += twitch_stream['title']
                             message += '***\n'
                             message += 'sur **'
-                            list_game = twitch.get_games(game_ids=twitch_stream['game_id'])
-                            game_data = list_game['data'][0]
-                            message += game_data['name']
+                            try:
+                                list_game = twitch.get_games(game_ids=twitch_stream['game_id'])
+                                game_data = list_game['data'][0]
+                                message += game_data['name']
+                            except TwitchAPIException as exc:
+                                print('Erreur Twitch API get_games : ', exc)
                             message += '** pour **'
                             message += str(twitch_stream['viewer_count'])
                             message += '** viewers\n'
