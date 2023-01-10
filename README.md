@@ -11,8 +11,8 @@
             twitch_logins: [,]
             chan_id: 
         bdd:
-            name: 'simplebot'
-            user: 'simplebot'
+            name: 
+            user: 
             pwd: 
         birthday:
             chan_id: 
