@@ -2,24 +2,26 @@
 
    config.yaml
     
-        client:
-            token: 
-            chan_id: 
-        twitch:
-            client_id: 
-            secret: 
-            twitch_logins: [,]
-            chan_id: 
-        bdd:
-            name: 
-            user: 
-            pwd: 
-        birthday:
-            chan_id: 
+ ```yaml
+client:
+  token: 
+  chan_id: 
+twitch:
+  client_id: 
+  secret: 
+  twitch_logins: [,]
+  chan_id: 
+bdd:
+  name: 
+  user: 
+  pwd: 
+birthday:
+  chan_id: 
+```    
 
    PostgreSQL Schema
-
-        CREATE DATABASE simplebot
+```sql 
+ CREATE DATABASE simplebot
             WITH 
             OWNER = simplebot
             ENCODING = 'UTF8'
@@ -51,3 +53,4 @@
 
         ALTER TABLE ONLY public.anniversaire
             ADD CONSTRAINT anniversaire_id_simplebot_fkey FOREIGN KEY (id_simplebot) REFERENCES public.identity(id_simplebot) ON DELETE CASCADE;
+```
