@@ -1,4 +1,4 @@
-# SimpleBot
+# SimpleBot [Python >=3.9]
 
    config.yaml
     
@@ -12,6 +12,7 @@ twitch:
   twitch_logins: [,]
   chan_id: 
 bdd:
+  host:
   name: 
   user: 
   pwd: 
