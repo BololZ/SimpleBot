@@ -22,10 +22,12 @@ try:
             api_twitch_secret = cfg['twitch']['secret']
             twitch_logins = cfg['twitch']['twitch_logins']
             dsn_name = cfg['bdd']['name']
+            dsn_host = cfg['bdd']['host']
             dsn_user = cfg['bdd']['user']
             dsn_pwd = cfg['bdd']['pwd']
             chan_id_birthday = cfg['birthday']['chan_id']
-            DSN = "dbname=" + dsn_name + " user=" + dsn_user + " password= " + dsn_pwd
+            DSN = "dbname=" + dsn_name + " user=" + dsn_user + \
+                " password= " + dsn_pwd + " host=" + dsn_host
             stream.close()
 except IOError as exec:
     print("Erreur d'accès à la configuration : ", exec)
@@ -37,14 +39,15 @@ class MonBot(discord.Client):
         self.loop.create_task(self.background_task_twitch())
         self.loop.create_task(self.background_task_birthday())
 
-    async def on_ready(self):
+    async def on_ready(self: discord.Client):
         print('Logged on as', self.user)
         print('Chan_id_stream :', chan_id_stream)
         print('Chan_id_birthday :', chan_id_birthday)
 
-    async def on_message(self, message):
+    async def on_message(self: discord.Client, message: discord.Message):
         await self.wait_until_ready()
-        # we do not want the bot to reply to itself
+        # we do not want the bot to reply to itself and public message
+        assert self.user is not None, "Discord.User None"
         if self.user.id == message.author.id or str(message.channel.type) != 'private':
             return None
         try:
@@ -62,50 +65,62 @@ class MonBot(discord.Client):
             conn.set_client_encoding('UTF8')
         except psycopg2.Error as err:
             print('Erreur de connexion à la BDD: ', err)
-            return err
-        try:
-            where = message.author.id
-            curs = conn.cursor()
-            curs.execute(
-                'SELECT a.jour FROM identity as i, anniversaire as a WHERE i.id_simplebot = a.id_simplebot AND '
-                'i.id_discord = %s;', [where])
-            x = curs.fetchone()
-            if x is None:
-                uuid_id = uuid.uuid4()
-                psycopg2.extras.register_uuid()
+        else:
+            try:
+                where = message.author.id
+                curs = conn.cursor()
                 curs.execute(
-                    'INSERT INTO identity (id_simplebot, id_discord) VALUES (%(uuid)s,%(int)s);',
-                    {'uuid': uuid_id, 'int': int(message.author.id)}
-                )
-                curs.execute(
-                    'INSERT INTO anniversaire (id_simplebot, jour) VALUES (%(uuid)s,%(date)s);',
-                    {'uuid': uuid_id, 'date': date_message}
-                )
-                await message.channel.send(
-                    "Ta date d'anniversaire a été sauvegardée. Merci {0.author.name}.".format(
-                        message)
-                )
+                    'SELECT a.jour FROM identity as i, anniversaire as a WHERE i.id_simplebot = a.id_simplebot AND '
+                    'i.id_discord = %s;', [where])
+                x = curs.fetchone()
+            except psycopg2.Error as err:
+                print('Erreur de SELECT : ', err)
+                conn.close()
             else:
-                curs.execute(
-                    'UPDATE anniversaire SET jour = %(date)s FROM identity WHERE '
-                    'identity.id_simplebot = anniversaire.id_simplebot AND '
-                    'identity.id_discord = %(int)s;', {
-                        'date': date_message, 'int': where}
-                )
-                await message.channel.send(
-                    'Ta date d\'anniversaire a été mise à jour et sauvegardée. Merci {0.author.name}.'.format(
-                        message)
-                )
-        except psycopg2.Error as err:
-            print('Erreur de requête : ', err)
-            conn.rollback()
-            conn.close()
-            return err
-        finally:
-            conn.commit()
-            conn.close()
+                if x is None:
+                    uuid_id = uuid.uuid4()
+                    psycopg2.extras.register_uuid()
+                    try:
+                        curs.execute(
+                            'INSERT INTO identity (id_simplebot, id_discord) VALUES (%(uuid)s,%(int)s);',
+                            {'uuid': uuid_id, 'int': int(message.author.id)}
+                        )
+                        curs.execute(
+                            'INSERT INTO anniversaire (id_simplebot, jour) VALUES (%(uuid)s,%(date)s);',
+                            {'uuid': uuid_id, 'date': date_message}
+                        )
+                    except psycopg2.Error as err:
+                        print("Erreur d'INSERT : ", err)
+                        conn.rollback()
+                        conn.close()
+                    else:
+                        await message.channel.send(
+                            "Ta date d'anniversaire a été sauvegardée. Merci {0.author.name}.".format(
+                                message)
+                        )
+                        conn.commit()
+                        conn.close()
+                else:
+                    try:
+                        curs.execute(
+                            'UPDATE anniversaire SET jour = %(date)s FROM identity WHERE '
+                            'identity.id_simplebot = anniversaire.id_simplebot AND '
+                            'identity.id_discord = %(int)s;', {
+                                'date': date_message, 'int': where}
+                        )
+                    except psycopg2.Error as err:
+                        print("Erreur d'UPDATE : ", err)
+                        conn.rollback()
+                        conn.close()
+                    else:
+                        await message.channel.send(
+                            'Ta date d\'anniversaire a été mise à jour et sauvegardée. Merci {0.author.name}.'.format(
+                                message)
+                        )
+                        conn.commit()
+                        conn.close()
 
-    async def background_task_twitch(self):
+    async def background_task_twitch(self: discord.Client):
         await self.wait_until_ready()
         stream_date = dict()
         for i in twitch_logins:
@@ -123,24 +138,27 @@ class MonBot(discord.Client):
                         if (stream_date[twitch_stream.user_name.lower()] < twitch_stream.started_at):
                             print(twitch_stream.user_name,
                                   " est en stream !")
-                            message = 'Maintenant en stream :heart: !!!!!\n**'
-                            message += twitch_stream.user_name
-                            message += '**\n'
-                            message += 'Titre : ***'
-                            message += twitch_stream.title
-                            message += '***\n'
-                            message += 'sur **'
-                            message += twitch_stream.game_name
-                            message += '** pour **'
-                            message += str(twitch_stream.viewer_count)
-                            message += '** viewers\n'
-                            message += 'https://www.twitch.com/'
-                            message += twitch_stream.user_name.lower()
-                            message += '\n'
-                            await channel.send(message)
+                            msg = 'Maintenant en stream :heart: !!!!!\n**'
+                            msg += twitch_stream.user_name
+                            msg += '**\n'
+                            msg += 'Titre : ***'
+                            msg += twitch_stream.title
+                            msg += '***\n'
+                            msg += 'sur **'
+                            msg += twitch_stream.game_name
+                            msg += '** pour **'
+                            msg += str(twitch_stream.viewer_count)
+                            msg += '** viewers\n'
+                            msg += 'https://www.twitch.com/'
+                            msg += twitch_stream.user_name.lower()
+                            msg += '\n'
+                            try:
+                                await channel.send(msg)  # type: ignore
+                            except discord.ClientException as err:
+                                print("Erreur envoi message : ", err)
                             stream_date[twitch_stream.user_name.lower(
                             )] = twitch_stream.started_at
-                            del message, twitch_stream
+                            del msg, twitch_stream
                     del channel, streamers
                 except TwitchAPIException as exc:
                     print('Erreur Twitch API get_streams : ', exc)
@@ -150,12 +168,15 @@ class MonBot(discord.Client):
                 del twitch
             await asyncio.sleep(300)
 
-    async def background_task_birthday(self):
+    async def background_task_birthday(self: discord.Client):
         await self.wait_until_ready()
         while not self.is_closed():
             date_du_jour = datetime.date(datetime.today())
             try:
                 conn = psycopg2.connect(DSN)
+            except psycopg2.Error as err:
+                print('Erreur de connexion : ', err)
+            else:
                 conn.set_client_encoding("UTF8")
                 try:
                     curs = conn.cursor()
@@ -164,6 +185,10 @@ class MonBot(discord.Client):
                         'AND a.jour = %s;', [date_du_jour]
                     )
                     x = curs.fetchall()
+                except psycopg2.Error as err:
+                    print('Erreur de SELECT : ', err)
+                    conn.close()
+                else:
                     for anniv in x:
                         if anniv is not None:
                             print("Anniv de ID : ", anniv[0])
@@ -171,23 +196,24 @@ class MonBot(discord.Client):
                             print("et pseudo : ", user)
                             channel = self.get_channel(chan_id_birthday)
                             if user != None:
-                                message = 'Aujourd\'hui, ' + user.mention + \
+                                msg = 'Aujourd\'hui, ' + user.mention + \
                                     ' est arrivé(e) dans ce monde !\n Venez tous/tes lui souhaiter un joyeux anniversaire ! '
-                                await channel.send(message)
-                            date_prochaine = date_du_jour.replace(
-                                year=date_du_jour.year + 1)
-                            curs.execute(
-                                'UPDATE anniversaire SET jour = %(date)s FROM identity WHERE '
-                                'identity.id_simplebot = anniversaire.id_simplebot AND '
-                                'identity.id_discord = %(int)s;', {
-                                    'date': date_prochaine, 'int': anniv[0]}
-                            )
-                    conn.commit()
-                    conn.close()
-                except psycopg2.Error as err:
-                    print('Erreur de requête : ', err)
-                    conn.rollback()
-                    conn.close()
-            except psycopg2.Error as err:
-                print('Erreur de connexion : ', err)
+                                try:
+                                    await channel.send(msg)  # type: ignore
+                                except discord.ClientException as err:
+                                    print("Erreur envoi message : ", err)
+                                else:
+                                    date_prochaine = date_du_jour.replace(
+                                        year=date_du_jour.year + 1)
+                                    try:
+                                        curs.execute(
+                                            'UPDATE anniversaire SET jour = %(date)s FROM identity WHERE '
+                                            'identity.id_simplebot = anniversaire.id_simplebot AND '
+                                            'identity.id_discord = %(int)s;', {
+                                                'date': date_prochaine, 'int': anniv[0]})
+                                    except psycopg2.Error as err:
+                                        print("Erreur d'update: ", err)
+                                    else:
+                                        conn.commit()
+                                        conn.close()
             await asyncio.sleep(900)
