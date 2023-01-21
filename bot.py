@@ -1,5 +1,5 @@
 import asyncio
-from datetime import datetime, date
+from datetime import datetime, timezone
 import uuid
 import psycopg2
 import psycopg2.extras
@@ -9,21 +9,27 @@ import yaml
 from twitchAPI.twitch import Twitch
 from twitchAPI.types import TwitchAPIException
 
-with open("config.yaml", 'r') as stream:
-    try:
-        cfg = yaml.safe_load(stream)
-    except yaml.YAMLError as error:
-        print(error)
-    finally:
-        chan_id_stream = cfg['twitch']['chan_id']
-        api_twitch_id = cfg['twitch']['client_id']
-        api_twitch_secret = cfg['twitch']['secret']
-        user_logins = cfg['twitch']['twitch_logins']
-        dsn_name = cfg['bdd']['name']
-        dsn_user = cfg['bdd']['user']
-        dsn_pwd = cfg['bdd']['pwd']
-        chan_id_birthday = cfg['birthday']['chan_id']
-        DSN = "dbname=" + dsn_name + " user=" + dsn_user + " password= " + dsn_pwd
+try:
+    with open("config.yaml", 'r') as stream:
+        try:
+            cfg = yaml.safe_load(stream)
+        except yaml.YAMLError as error:
+            print(error)
+            exit(1)
+        else:
+            chan_id_stream = cfg['twitch']['chan_id']
+            api_twitch_id = cfg['twitch']['client_id']
+            api_twitch_secret = cfg['twitch']['secret']
+            twitch_logins = cfg['twitch']['twitch_logins']
+            dsn_name = cfg['bdd']['name']
+            dsn_user = cfg['bdd']['user']
+            dsn_pwd = cfg['bdd']['pwd']
+            chan_id_birthday = cfg['birthday']['chan_id']
+            DSN = "dbname=" + dsn_name + " user=" + dsn_user + " password= " + dsn_pwd
+            stream.close()
+except IOError as exec:
+    print("Erreur d'accès à la configuration : ", exec)
+    exit(1)
 
 
 class MonBot(discord.Client):
@@ -76,16 +82,19 @@ class MonBot(discord.Client):
                     {'uuid': uuid_id, 'date': date_message}
                 )
                 await message.channel.send(
-                    "Ta date d'anniversaire a été sauvegardée. Merci {0.author.name}.".format(message)
+                    "Ta date d'anniversaire a été sauvegardée. Merci {0.author.name}.".format(
+                        message)
                 )
             else:
                 curs.execute(
                     'UPDATE anniversaire SET jour = %(date)s FROM identity WHERE '
                     'identity.id_simplebot = anniversaire.id_simplebot AND '
-                    'identity.id_discord = %(int)s;', {'date': date_message, 'int': where}
+                    'identity.id_discord = %(int)s;', {
+                        'date': date_message, 'int': where}
                 )
                 await message.channel.send(
-                    'Ta date d\'anniversaire a été mise à jour et sauvegardée. Merci {0.author.name}.'.format(message)
+                    'Ta date d\'anniversaire a été mise à jour et sauvegardée. Merci {0.author.name}.'.format(
+                        message)
                 )
         except psycopg2.Error as err:
             print('Erreur de requête : ', err)
@@ -99,47 +108,39 @@ class MonBot(discord.Client):
     async def background_task_twitch(self):
         await self.wait_until_ready()
         stream_date = dict()
-        for i in user_logins:
-            stream_date[i] = datetime.strptime('2020-01-01T00:00:00Z', '%Y-%m-%dT%H:%M:%SZ')
+        for i in twitch_logins:
+            stream_date[i] = datetime(2023, 1, 1, tzinfo=timezone.utc)
         while not self.is_closed():
-            twitch = Twitch(api_twitch_id, api_twitch_secret)
+            twitch = await Twitch(api_twitch_id, api_twitch_secret)
             # print("Authentification Twitch...")
             try:
-                twitch.authenticate_app([])
                 # print("Authentification Twitch réussie")
                 try:
-                    streamers = twitch.get_streams(user_login=user_logins)
+                    streamers = dict()
                     channel = self.get_channel(int(chan_id_stream))
-                    twitch_stream = dict()
-                    for twitch_stream in streamers['data']:
-                        if (twitch_stream['type'] == 'live') and (stream_date[twitch_stream['user_name'].lower()]
-                                                                  < datetime.strptime(twitch_stream['started_at'],
-                                                                                      '%Y-%m-%dT%H:%M:%SZ')):
-                            print(twitch_stream['user_name'], " est en stream !")
+                    streamers = twitch.get_streams(user_login=twitch_logins)
+                    async for twitch_stream in streamers:
+                        if (stream_date[twitch_stream.user_name.lower()] < twitch_stream.started_at):
+                            print(twitch_stream.user_name,
+                                  " est en stream !")
                             message = 'Maintenant en stream :heart: !!!!!\n**'
-                            message += twitch_stream['user_name']
+                            message += twitch_stream.user_name
                             message += '**\n'
                             message += 'Titre : ***'
-                            message += twitch_stream['title']
+                            message += twitch_stream.title
                             message += '***\n'
                             message += 'sur **'
-                            try:
-                                list_game = twitch.get_games(game_ids=twitch_stream['game_id'])
-                                game_data = list_game['data'][0]
-                                message += game_data['name']
-                            except TwitchAPIException as exc:
-                                print('Erreur Twitch API get_games : ', exc)
+                            message += twitch_stream.game_name
                             message += '** pour **'
-                            message += str(twitch_stream['viewer_count'])
+                            message += str(twitch_stream.viewer_count)
                             message += '** viewers\n'
                             message += 'https://www.twitch.com/'
-                            message += twitch_stream['user_name'].lower()
+                            message += twitch_stream.user_name.lower()
                             message += '\n'
                             await channel.send(message)
-                            stream_date[twitch_stream['user_name'].lower()] \
-                                = datetime.strptime(twitch_stream['started_at'], '%Y-%m-%dT%H:%M:%SZ')
-                            del message
-                    del channel, twitch_stream, streamers
+                            stream_date[twitch_stream.user_name.lower()] = twitch_stream.started_at
+                            del message, twitch_stream
+                    del channel, streamers
                 except TwitchAPIException as exc:
                     print('Erreur Twitch API get_streams : ', exc)
             except TwitchAPIException as exc:
@@ -169,15 +170,15 @@ class MonBot(discord.Client):
                             print("et pseudo : ", user)
                             channel = self.get_channel(chan_id_birthday)
                             if user != None:
-                                await channel.send(
-                                    'Aujourd\'hui, ' + user.mention + ' est arrivé(e) dans ce monde ! '
-                                                            ' Venez tous lui souhaiter un joyeux anniversaire ! '
-                                )
-                            date_prochaine = date_du_jour.replace(year=date_du_jour.year + 1)
+                                message = 'Aujourd\'hui, ' + user.mention + ' est arrivé(e) dans ce monde !\n Venez tous/tes lui souhaiter un joyeux anniversaire ! '
+                                await channel.send(message)
+                            date_prochaine = date_du_jour.replace(
+                                year=date_du_jour.year + 1)
                             curs.execute(
                                 'UPDATE anniversaire SET jour = %(date)s FROM identity WHERE '
                                 'identity.id_simplebot = anniversaire.id_simplebot AND '
-                                'identity.id_discord = %(int)s;', {'date': date_prochaine, 'int': anniv[0]}
+                                'identity.id_discord = %(int)s;', {
+                                    'date': date_prochaine, 'int': anniv[0]}
                             )
                     conn.commit()
                     conn.close()
