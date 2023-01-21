@@ -23,12 +23,13 @@ try:
             intents = discord.Intents.default()
             intents.members = True
             MemberCacheFlags = discord.MemberCacheFlags.all()
-            bot_discord = bot.MonBot(reconnect=True, intents=intents, MemberCacheFlags=MemberCacheFlags)
+            bot_discord = bot.MonBot(
+                reconnect=True, intents=intents, MemberCacheFlags=MemberCacheFlags)
             try:
                 bot_discord.run(token)
             except discord.ClientException as Err:
                 print('Erreur de lancement du bot : ', Err)
                 exit(1)
 except IOError as exec:
-        print("Erreur d'accès au fichier config.yaml : ", exec)
-        exit(1)
+    print("Erreur d'accès au fichier config.yaml : ", exec)
+    exit(1)

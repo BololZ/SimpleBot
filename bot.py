@@ -138,7 +138,8 @@ class MonBot(discord.Client):
                             message += twitch_stream.user_name.lower()
                             message += '\n'
                             await channel.send(message)
-                            stream_date[twitch_stream.user_name.lower()] = twitch_stream.started_at
+                            stream_date[twitch_stream.user_name.lower(
+                            )] = twitch_stream.started_at
                             del message, twitch_stream
                     del channel, streamers
                 except TwitchAPIException as exc:
@@ -170,7 +171,8 @@ class MonBot(discord.Client):
                             print("et pseudo : ", user)
                             channel = self.get_channel(chan_id_birthday)
                             if user != None:
-                                message = 'Aujourd\'hui, ' + user.mention + ' est arrivé(e) dans ce monde !\n Venez tous/tes lui souhaiter un joyeux anniversaire ! '
+                                message = 'Aujourd\'hui, ' + user.mention + \
+                                    ' est arrivé(e) dans ce monde !\n Venez tous/tes lui souhaiter un joyeux anniversaire ! '
                                 await channel.send(message)
                             date_prochaine = date_du_jour.replace(
                                 year=date_du_jour.year + 1)
