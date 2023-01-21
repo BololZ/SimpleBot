@@ -1,4 +1,4 @@
-# SimpleBot
+# SimpleBot [Python >=3.9]
 
    config.yaml
     
