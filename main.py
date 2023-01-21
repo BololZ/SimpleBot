@@ -24,7 +24,7 @@ try:
             intents.members = True
             MemberCacheFlags = discord.MemberCacheFlags.all()
             bot_discord = bot.MonBot(
-                reconnect=True, intents=intents, MemberCacheFlags=MemberCacheFlags)
+                reconnect=True, intents=intents, MemberCacheFlags=MemberCacheFlags, max_messages=100)
             try:
                 bot_discord.run(token)
             except discord.ClientException as Err:
