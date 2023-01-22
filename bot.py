@@ -213,7 +213,8 @@ class MonBot(discord.Client):
                                                 'date': date_prochaine, 'int': anniv[0]})
                                     except psycopg2.Error as err:
                                         print("Erreur d'update: ", err)
+                                        conn.close()
                                     else:
                                         conn.commit()
-                                        conn.close()
+                        conn.close()
             await asyncio.sleep(900)
