@@ -216,5 +216,5 @@ class MonBot(discord.Client):
                                         conn.close()
                                     else:
                                         conn.commit()
-                        conn.close()
+                    conn.close()
             await asyncio.sleep(900)
