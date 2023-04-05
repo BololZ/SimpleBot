@@ -43,7 +43,7 @@ jobs:
       uses: actions/cache@v3
       with:
         # A list of files, directories, and wildcard patterns to cache and restore
-        path: .cache
+        path: ~/.cache
         # An explicit key for restoring and saving the cache
         key: ${{ runner.os }}-pip-cache
         # An ordered list of keys to use for restoring stale cache if no cache hit occurred for key. Note `cache-hit` returns false in this case.
