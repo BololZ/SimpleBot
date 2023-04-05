@@ -6,15 +6,15 @@
 version: 2
 updates:
  - package-ecosystem: "pip"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    allow:
-      - dependency-name: "twitchAPI"
-        dependency-type: "production"
-      - dependency-name: "discord.py"
-        dependency-type: "production"
-      - dependency-name: "PyYAML"
-        dependency-type: "production"
-      - dependency-name: "psycopg2"
-        dependency-type: "production"
+   directory: "/"
+   schedule:
+     interval: "weekly"
+   allow:
+     - dependency-name: "twitchAPI"
+       dependency-type: "production"
+     - dependency-name: "discord.py"
+       dependency-type: "production"
+     - dependency-name: "PyYAML"
+       dependency-type: "production"
+     - dependency-name: "psycopg2"
+       dependency-type: "production"
