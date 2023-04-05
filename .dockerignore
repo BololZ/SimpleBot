@@ -5,4 +5,8 @@ __pycache__
 .git
 .dockerignore
 .gitignore
+.github
+log
+config.yml
+config.yaml
 Dockerfile
