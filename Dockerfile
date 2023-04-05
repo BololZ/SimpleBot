@@ -2,7 +2,7 @@
 
 FROM python:alpine
 
-RUN groupadd simple && useradd -m --no-log-init -g simple simple
+RUN addgroup simple && adduser -D -g "A Simple Discord Bot" simple
 
 USER simple:simple
 
