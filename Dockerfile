@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM python:latest
+FROM python:alpine
 
 RUN groupadd simple && useradd -m --no-log-init -g simple simple
 
