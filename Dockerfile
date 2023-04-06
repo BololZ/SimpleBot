@@ -2,7 +2,7 @@
 
 FROM python:alpine
 
-RUN apk -U add py3-psycopg2
+RUN apk -U add libpq-dev
 
 RUN adduser -D -g "A Simple Discord Bot" simple
 
