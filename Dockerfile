@@ -9,7 +9,7 @@ USER simple:simple
 WORKDIR /app
 
 COPY requirements.txt requirements.txt
-RUN apk add py3-psycopg2 && pip3 install -r requirements.txt --no-cache-dir
+RUN apk add py3-psycopg2 py3-aiohttp && pip3 install -r requirements.txt --no-cache-dir
 
 COPY . .
 
