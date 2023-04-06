@@ -2,7 +2,7 @@
 
 FROM python:alpine
 
-RUN apk -U add gcc libpq-dev
+RUN apk -U add gcc libpq-dev libstdc++
 
 RUN adduser -D -g "A Simple Discord Bot" simple
 
