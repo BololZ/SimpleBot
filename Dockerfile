@@ -2,7 +2,7 @@
 
 FROM python:alpine
 
-RUN addgroup simple && adduser -D -g "A Simple Discord Bot" simple simple
+RUN adduser -D -g "A Simple Discord Bot" simple
 
 USER simple:simple
 
