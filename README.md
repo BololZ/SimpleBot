@@ -1,3 +1,6 @@
+[![CodeQL](https://github.com/BololZ/SimpleBot/actions/workflows/codeql.yml/badge.svg?branch=master)](https://github.com/BololZ/SimpleBot/actions/workflows/codeql.yml)
+
+
 # SimpleBot [Python >=3.9]
 
    config.yaml
