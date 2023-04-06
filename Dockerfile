@@ -9,7 +9,7 @@ USER simple:simple
 WORKDIR /app
 
 COPY requirements.txt requirements.txt
-RUN pip3 --no-cache-dir install -r requirements.txt
+RUN pip3 install -r requirements.txt --no-cache-dir --user
 
 COPY . .
 
