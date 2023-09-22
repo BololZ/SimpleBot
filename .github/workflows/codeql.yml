@@ -29,8 +29,6 @@ on:
       - '.*ignore'
       - '.github/**/*'
       - 'Dockerfile'
-  schedule:
-    - cron: '25 6 * * 5'
 
 jobs:
   analyze:
