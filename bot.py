@@ -1,8 +1,7 @@
 import asyncio
 from datetime import datetime, timezone
 import uuid
-import psycopg2
-import psycopg2.extras
+import psycopg
 
 import discord
 import yaml
@@ -61,9 +60,9 @@ class MonBot(discord.Client):
             return 'Bad date in the past'
 
         try:
-            conn = psycopg2.connect(DSN)
-            conn.set_client_encoding('UTF8')
-        except psycopg2.Error as err:
+            conn = psycopg.connect(DSN)
+            # conn.set_client_encoding('UTF8')
+        except psycopg.Error as err:
             print('Erreur de connexion à la BDD: ', err)
         else:
             try:
@@ -73,13 +72,13 @@ class MonBot(discord.Client):
                     'SELECT a.jour FROM identity as i, anniversaire as a WHERE i.id_simplebot = a.id_simplebot AND '
                     'i.id_discord = %s;', [where])
                 x = curs.fetchone()
-            except psycopg2.Error as err:
+            except psycopg.Error as err:
                 print('Erreur de SELECT : ', err)
                 conn.close()
             else:
                 if x is None:
                     uuid_id = uuid.uuid4()
-                    psycopg2.extras.register_uuid()
+                    # psycopg.extras.register_uuid()
                     try:
                         curs.execute(
                             'INSERT INTO identity (id_simplebot, id_discord) VALUES (%(uuid)s,%(int)s);',
@@ -89,7 +88,7 @@ class MonBot(discord.Client):
                             'INSERT INTO anniversaire (id_simplebot, jour) VALUES (%(uuid)s,%(date)s);',
                             {'uuid': uuid_id, 'date': date_message}
                         )
-                    except psycopg2.Error as err:
+                    except psycopg.Error as err:
                         print("Erreur d'INSERT : ", err)
                         conn.rollback()
                         conn.close()
@@ -108,7 +107,7 @@ class MonBot(discord.Client):
                             'identity.id_discord = %(int)s;', {
                                 'date': date_message, 'int': where}
                         )
-                    except psycopg2.Error as err:
+                    except psycopg.Error as err:
                         print("Erreur d'UPDATE : ", err)
                         conn.rollback()
                         conn.close()
@@ -173,11 +172,11 @@ class MonBot(discord.Client):
         while not self.is_closed():
             date_du_jour = datetime.date(datetime.today())
             try:
-                conn = psycopg2.connect(DSN)
-            except psycopg2.Error as err:
+                conn = psycopg.connect(DSN)
+            except psycopg.Error as err:
                 print('Erreur de connexion : ', err)
             else:
-                conn.set_client_encoding("UTF8")
+                # conn.set_client_encoding("UTF8")
                 try:
                     curs = conn.cursor()
                     curs.execute(
@@ -185,7 +184,7 @@ class MonBot(discord.Client):
                         'AND a.jour = %s;', [date_du_jour]
                     )
                     x = curs.fetchall()
-                except psycopg2.Error as err:
+                except psycopg.Error as err:
                     print('Erreur de SELECT : ', err)
                     conn.close()
                 else:
@@ -211,7 +210,7 @@ class MonBot(discord.Client):
                                             'identity.id_simplebot = anniversaire.id_simplebot AND '
                                             'identity.id_discord = %(int)s;', {
                                                 'date': date_prochaine, 'int': anniv[0]})
-                                    except psycopg2.Error as err:
+                                    except psycopg.Error as err:
                                         print("Erreur d'update: ", err)
                                         conn.close()
                                     else:
