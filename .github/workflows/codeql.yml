@@ -29,6 +29,7 @@ on:
       - '.*ignore'
       - '.github/**/*'
       - 'Dockerfile'
+  workflow_dispatch:
 
 jobs:
   analyze:
