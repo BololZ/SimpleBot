@@ -16,5 +16,5 @@ updates:
        dependency-type: "production"
      - dependency-name: "PyYAML"
        dependency-type: "production"
-     - dependency-name: "psycopg2"
+     - dependency-name: "psycopg[c]"
        dependency-type: "production"
