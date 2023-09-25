@@ -1,4 +1,4 @@
-twitchAPI>=3.5,<4
+twitchAPI>=3.5,<5
 discord.py>=2.2,<3
 PyYAML>=6,<7
 psycopg[c]>=3
