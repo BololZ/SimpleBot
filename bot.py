@@ -6,7 +6,7 @@ import psycopg
 import discord
 import yaml
 from twitchAPI.twitch import Twitch
-from twitchAPI.types import TwitchAPIException
+from twitchAPI.type import TwitchAPIException
 
 try:
     with open("config.yaml", 'r') as stream:
