@@ -2,6 +2,6 @@
 __pycache__
 .idea
 .vscode
-log/*
+log
 config.yml
 config.yaml
