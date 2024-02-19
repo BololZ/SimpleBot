@@ -2,7 +2,7 @@
 
 FROM python:alpine
 
-RUN apk -U add libpq-dev build-base
+RUN apk --no-cache -U add libpq-dev build-base
 
 RUN adduser -D -g "A Simple Discord Bot" simple
 
