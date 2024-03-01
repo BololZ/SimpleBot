@@ -12,6 +12,7 @@ FROM python:alpine as main
 RUN apk --no-cache -U add libpq && adduser -D -g "A Simple Discord Bot" simple
 USER simple:simple
 WORKDIR /app
+COPY . .
 COPY --from=builder --chmod=0550 /app/* /app/
 
 ENTRYPOINT ["python3"]
