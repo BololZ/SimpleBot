@@ -2,18 +2,17 @@
 
 FROM python:alpine as builder
 
-RUN apk --no-cache -U add libpq-dev build-base && adduser -D -g "A Simple Discord Bot" simple
-USER simple:simple
+RUN apk --no-cache -U add libpq-dev build-base
 WORKDIR /app
 COPY requirements.txt requirements.txt
-RUN pip3 install --user -r requirements.txt --no-cache-dir
+RUN python -m venv venv && pip3 install -r requirements.txt --no-cache-dir
 
 FROM python:alpine as main
 RUN apk --no-cache -U add libpq && adduser -D -g "A Simple Discord Bot" -h /app simple
 USER simple:simple
 WORKDIR /app
 COPY . .
-COPY --from=builder --chmod=0550 /app/* /app/
+COPY --from=builder --chmod=0550 /app/venv /app/
 
-ENTRYPOINT ["python3"]
+ENTRYPOINT ["/app/venv/python3"]
 CMD ["-u" , "./main.py"]
