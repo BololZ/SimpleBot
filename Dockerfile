@@ -12,7 +12,7 @@ RUN apk --no-cache -U add libpq && adduser -D -g "A Simple Discord Bot" -h /app 
 USER simple:simple
 WORKDIR /app
 COPY . .
-COPY --from=builder --chmod=0550 /opt/venv /app/venv
+COPY --from=builder --chmod=0550 --chown=simple:simple /opt/venv /app/venv
 
 ENTRYPOINT ["/app/venv/bin/python"]
 CMD ["-u" , "./main.py"]
