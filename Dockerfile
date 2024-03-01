@@ -9,7 +9,7 @@ COPY requirements.txt requirements.txt
 RUN pip3 install --user -r requirements.txt --no-cache-dir
 
 FROM python:alpine as main
-RUN apk --no-cache -U add libpq && adduser -D -g "A Simple Discord Bot" simple
+RUN apk --no-cache -U add libpq && adduser -D -g "A Simple Discord Bot" -h /app simple
 USER simple:simple
 WORKDIR /app
 COPY . .
